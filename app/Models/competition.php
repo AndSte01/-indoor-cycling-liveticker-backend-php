@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Flight extends Model
+class competition extends Model
 {
     //
 }
