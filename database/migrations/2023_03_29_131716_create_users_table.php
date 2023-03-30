@@ -16,11 +16,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create(self::TABLENAME, function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->tinyText('name');
+            $table->bigIncrements('id')->nullable(false)->unsigned();
+            $table->tinyText('name')->nullable(false);
             $table->integer('password_hash'); // get's changed to VARBINARY(64) later on
             $table->integer('password_salt'); // get's changed to VARBINARY(64) later on
-            $table->timestamp('binary_timestamp');
+            $table->timestamp('binary_timestamp')->nullable(true)->default(NULL);
             $table->integer('binary_token'); // get's changed to VARBINARY(64) later on
         });
 
