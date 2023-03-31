@@ -114,7 +114,7 @@ class user extends Model //implements AuthenticatableContract, AuthorizableContr
      * 
      * @param string The new user password
      */
-    public function changePassword(string $password)
+    public function setPassword(string $password)
     {
         // create new random salt
         $this->password_salt = random_bytes(self::BINARY_LENGTH);
