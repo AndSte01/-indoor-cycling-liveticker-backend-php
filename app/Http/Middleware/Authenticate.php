@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Providers\AuthServiceProvider;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class Authenticate
 {
@@ -39,10 +40,10 @@ class Authenticate
         if ($this->auth->guard($guard)->guest()) {
             // Authentication wasn't successful
             if ($guard == "token")
-                return response('Unauthorized.', 401, self::setBearerAuthenticationHeader());
+                return new JsonResponse(['Unauthorized'], 401, self::getBearerAuthenticationHeader());
 
             if ($guard == "password")
-                return response('Unauthorized.', 401, self::setBasicAuthenticationHeader());
+                return new JsonResponse(['Unauthorized'], 401, self::getBasicAuthenticationHeader());
         }
 
         return $next($request);
@@ -56,7 +57,7 @@ class Authenticate
      * 
      * @return array the required headers
      */
-    static protected function setBasicAuthenticationHeader(): array
+    static protected function getBasicAuthenticationHeader(): array
     {
         // set the authentication field in the header
         // according to https://datatracker.ietf.org/doc/html/rfc7617
@@ -72,7 +73,7 @@ class Authenticate
      * 
      * @return array the required headers
      */
-    protected static function setBearerAuthenticationHeader(int $error = 0): array
+    static protected function getBearerAuthenticationHeader(int $error = 0): array
     {
 
         $error_string = "";
