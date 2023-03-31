@@ -14,7 +14,7 @@ class userFactory extends Factory
         $faker = Faker::create();
 
         return [
-            'name' => $faker->text(5),
+            'name' => $faker->word(),
         ];
     }
 }
