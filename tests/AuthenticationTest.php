@@ -75,10 +75,18 @@ class AuthenticationTest extends TestCase
         $this->refreshApplication();
 
 
-        // TODO Authenticate with an non existing user
+        // Authenticate with an non existing user
+        $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, new user(['name' => 'none']), '123'));
+        $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, true);
+
+        $this->refreshApplication();
 
 
-        // TODO Authenticate with existing user but wrong password (use numeric values)
+        // Authenticate with existing user but wrong password (use numeric values)
+        $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, $users_in_db[0], null));
+        $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, true);
+
+        $this->refreshApplication();
 
 
         // test all users for authentication
@@ -95,11 +103,25 @@ class AuthenticationTest extends TestCase
         }
 
 
-        // TODO authenticate with token even though password is required
+        // authenticate with token even though password is required
+        $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $users_in_db[0], '123'));
+        $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, true); // note basic ist required so the response should be checked for that
 
+        $this->refreshApplication();
 
-        // TODO add test checking for binary token (generation and timestamp, use the results from the test beforehand)
+        // add test checking for binary token (generation and timestamp, use the results from the test beforehand)
+        $i = 0;
+        foreach ($users_in_db as $user) {
+            // get the current token
+            $current_token = $user->getBearerToken();
 
+            // request a new token
+            $new_token = $user->getBearerToken();
+
+            // check if the match (they shouldn't)
+            $this->assertFalse(!strcmp($current_token, $new_token)); // see definition of strcmp to understand the '!'
+            $i++;
+        }
 
         // TODO check if authentication with bearer tokens work
 
@@ -110,7 +132,7 @@ class AuthenticationTest extends TestCase
         // TODO test for bearer token expiring
 
 
-        // TODO test if bearer tokens change every time the user retrives a new one
+        // TODO test if bearer tokens change every time the user retrieves a new one
 
 
     }
