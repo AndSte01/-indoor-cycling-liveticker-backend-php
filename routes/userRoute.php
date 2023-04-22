@@ -2,7 +2,7 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
-use App\Http\Controllers\competitionController;
+use Illuminate\Http\JsonResponse;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,5 +29,5 @@ $router->group(['prefix' => 'user', 'middleware' => 'auth:password'], function (
 });
 
 $router->get('user/validate_token', ['middleware' => 'auth:token', function () {
-    return "SUCCESS";
+    return new JsonResponse(["SUCCESS"]);
 }]);
