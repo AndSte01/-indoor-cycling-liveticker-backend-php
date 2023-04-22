@@ -9,7 +9,7 @@ class ControllerHelper
      * 
      * @param mixed &$content the content to put in an array
      */
-    public function makeToArray(&$content): void
+    public static function makeToArray(&$content): void
     {
         if (!is_array($content)) {
             $content = [$content];
