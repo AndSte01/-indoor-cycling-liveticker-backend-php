@@ -18,4 +18,15 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    # Headers for CORS
+    <IfModule mod_headers.c>
+        Header add Access-Control-Allow-Origin "*"
+        Header add Access-Control-Allow-Headers "origin, content-type, authorization"
+        Header add Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
+    </IfModule>
+
+    # Always return http-status code 200 on OPTIONS Requests
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ blank.html [QSA,L]
 </IfModule>
