@@ -95,6 +95,7 @@ class AuthenticationTest extends TestCase
         $i = 0;
         foreach ($users_in_db as $user) {
             $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, $user, $passwords[$i]));
+            $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, false);
             $this->response->assertContent(self::generateBearerToken(user::find($user->id))); // we need the fresh user from the database
 
             // start new (no cached results)
@@ -104,12 +105,15 @@ class AuthenticationTest extends TestCase
 
 
         // authenticate with token even though password is required
-        $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $users_in_db[0], '123'));
+        $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $users_in_db[0], null));
         $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, true); // note basic ist required so the response should be checked for that
 
         $this->refreshApplication();
 
+
         // add test checking for binary token (generation and timestamp, use the results from the test beforehand)
+        $users_in_db = user::all(); // need new users
+
         $i = 0;
         foreach ($users_in_db as $user) {
             // get the current token
@@ -123,18 +127,82 @@ class AuthenticationTest extends TestCase
             $i++;
         }
 
-        // TODO check if authentication with bearer tokens work
+
+        // test if bearer tokens change every time the user retrieves a new one
+        $users_in_db = user::all(); // need new users
+
+        $i = 0;
+        foreach ($users_in_db as $user) {
+            // first authentication
+            $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, $user, $passwords[$i]));
+            $first_token = $this->response->getContent();
+
+            // start new (no cached results)
+            $this->refreshApplication();
+
+            // second authentication
+            $this->get('/user', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, $user, $passwords[$i]));
+            $second_token = $this->response->getContent();
+
+            // check if the match (they shouldn't)
+            $this->assertFalse(!strcmp($first_token, $second_token)); // see definition of strcmp to understand the '!'
+            $i++;
+        }
 
 
-        // TODO Add test for authenticating with password even though bearer token is required
+        // check if authentication with bearer tokens work
+        $users_in_db = user::all(); // need new users
+
+        $i = 0;
+        foreach ($users_in_db as $user) {
+            $this->get('/user/validate_token', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $user, null));
+            $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, false);
+            $this->response->assertExactJson(["SUCCESS"]);
+
+            // start new (no cached results)
+            $this->refreshApplication();
+            $i++;
+        }
 
 
-        // TODO test for bearer token expiring
+        // test for bearer token expiring
+        $users_in_db = user::all(); // need new users
+
+        $i = 0;
+        foreach ($users_in_db as $user) {;
+            // authenticate with token (still working)
+            $this->get('/user/validate_token', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $user, null));
+            $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, false);
+
+            // save new timestamp to database
+            $user->binary_timestamp = gmdate('c', 43200); // 0 doesn't work (=12h)
+            $user->save();
+
+            // refresh the app (forces to refetch the users)
+            $this->refreshApplication();
+
+            // try to authenticate with the token no longer working (it got to old)
+            $this->get('/user/validate_token', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, $user, null));
+            $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER, true);
+
+            // start new (no cached results)*/
+            $this->refreshApplication();
+            $i++;
+        }
 
 
-        // TODO test if bearer tokens change every time the user retrieves a new one
+        // Add test for authenticating with password even though bearer token is required
+        $users_in_db = user::all(); // need new users
 
+        $i = 0;
+        foreach ($users_in_db as $user) {
+            $this->get('/user/validate_token', $this->generateAuthHeaders(AuthServiceProvider::AUTHENTICATION_METHOD_BASIC, $user, null));
+            $this->checkResponse(AuthServiceProvider::AUTHENTICATION_METHOD_BEARER);
 
+            // start new (no cached results)
+            $this->refreshApplication();
+            $i++;
+        }
     }
 
     /**
@@ -173,7 +241,12 @@ class AuthenticationTest extends TestCase
      */
     protected function checkResponse(int $method, bool $failure = true): void
     {
-        $this->response->assertUnauthorized();
+        // check if failure is expected
+        if (!$failure) {
+            $this->response->assertStatus(200);
+            return;
+        }
+
         // authentication headers must always be present
         switch ($method) {
             case AuthServiceProvider::AUTHENTICATION_METHOD_BASIC:
@@ -185,9 +258,7 @@ class AuthenticationTest extends TestCase
                 break;
         }
 
-        // expect failure
-        if ($failure) {
-            $this->response->assertExactJson(["Unauthorized"]);
-        }
+        $this->response->assertUnauthorized();
+        $this->response->assertExactJson(["Unauthorized"]);
     }
 }
