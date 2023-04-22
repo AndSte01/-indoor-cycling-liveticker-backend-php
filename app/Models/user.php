@@ -2,18 +2,14 @@
 
 namespace App\Models;
 
-use Laravel\Lumen\Auth\Authorizable;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class user extends Model //implements AuthenticatableContract, AuthorizableContract
+class user extends Model
 {
     // use all the little helpers
-    use /*Authenticatable, Authorizable,*/ HasFactory;
+    use HasFactory;
 
     // no need to talk about primary id since it is exactly what eloquent assumes
 
@@ -58,24 +54,6 @@ class user extends Model //implements AuthenticatableContract, AuthorizableContr
 
     /** @var string The hash algorithm used to hash password with salt */
     private const HASH_ALGORITHM = "sha3-512"; // please note the binary length of hash filed (must be 64 byte long, in migrations)
-
-
-    /**
-     * Authenticates a user by the chosen method
-     * 
-     * @param int The method to authenticate the user with
-     * @param string The credentials provided by the client
-     * 
-     * @return ?self A successfully authenticated user or null
-     */
-    public static function authenticate(int $method, string $credentials): ?self
-    {
-        // 
-
-
-
-        return null;
-    }
 
     /**
      * Searches for a user in the database by it's name
@@ -159,7 +137,7 @@ class user extends Model //implements AuthenticatableContract, AuthorizableContr
             return false;
 
         // check time between now (database server) and time of generation
-        $delta_t = self::getServerTime() - $this->binary_timestamp;
+        $delta_t = generic::getServerTime() - $this->binary_timestamp;
 
         // if binary_tokens are generated in the future (that mustn't happen) something is very wrong so return false
         if ($delta_t > self::TOKEN_EXPIRATION_TIME || $delta_t < 0)
@@ -178,7 +156,7 @@ class user extends Model //implements AuthenticatableContract, AuthorizableContr
     {
         // generate new binary token
         $this->binary_token = random_bytes(self::BINARY_LENGTH);
-        $this->binary_timestamp = gmdate('c', self::getServerTime());
+        $this->binary_timestamp = gmdate('c', generic::getServerTime());
 
         // save changes in the database
         $this->save();
