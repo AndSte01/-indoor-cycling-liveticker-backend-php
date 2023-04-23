@@ -39,4 +39,15 @@ class competition extends Model
         'date' => 'date',
         'live' => 'boolean'
     ];
+
+    /**
+     * Prepare a date for array / JSON serialization.
+     *
+     * @param  \DateTimeInterface  $date
+     * @return int
+     */
+    protected function serializeDate(DateTimeInterface $date): int
+    {
+        return intval($date->format('U'));
+    }
 }
