@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+/**
+ * Collection of helper-functions for controllers
+ */
 class ControllerHelper
 {
     /**
