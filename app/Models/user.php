@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\ServerTimeHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -137,7 +138,7 @@ class user extends Model
             return false;
 
         // check time between now (database server) and time of generation
-        $delta_t = generic::getServerTime()->timestamp - $this->binary_timestamp->timestamp;
+        $delta_t = ServerTimeHelper::getServerTime()->timestamp - $this->binary_timestamp->timestamp;
 
         // if binary_tokens are generated in the future (that mustn't happen) something is very wrong so return false
         if ($delta_t > self::TOKEN_EXPIRATION_TIME || $delta_t < 0)
@@ -156,7 +157,7 @@ class user extends Model
     {
         // generate new binary token
         $this->binary_token = random_bytes(self::BINARY_LENGTH);
-        $this->binary_timestamp = generic::getServerTime();
+        $this->binary_timestamp = ServerTimeHelper::getServerTime();
 
         // save changes in the database
         $this->save();

@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Helpers;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class generic extends Model
+/**
+ * Contains a function to determine the time of the MySQL server
+ */
+class ServerTimeHelper
 {
     /**
      * Get's the current time of the server
