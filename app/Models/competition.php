@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,7 +18,7 @@ class competition extends Model
      */
     protected $attributes = [];
 
-
+    // disable timestamps
     public $timestamps = false;
 
     /**
@@ -34,7 +35,7 @@ class competition extends Model
      * @var array The attributes that should be cast.
      */
     protected $casts = [
-        'changed' => 'date',
+        'changed' => 'dateTime',
         'date' => 'date',
         'live' => 'boolean'
     ];

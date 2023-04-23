@@ -35,7 +35,7 @@ class user extends Model
      * @var array The attributes that should be cast.
      */
     protected $casts = [
-        'binary_timestamp' => 'date',
+        'binary_timestamp' => 'dateTime',
     ];
 
 
