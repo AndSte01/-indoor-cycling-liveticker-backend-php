@@ -68,6 +68,8 @@ class Handler extends ExceptionHandler
             'message' => 'You provided some invalid input value',
             'adaptMessage' => true,
         ],
+
+        // TODO maybe add InvalidFormatException (thrown by e.g. Carbon::parse())
     ];
 
     /**
