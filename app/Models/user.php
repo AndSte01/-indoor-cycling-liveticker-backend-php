@@ -35,7 +35,7 @@ class user extends Model
      * @var array The attributes that should be cast.
      */
     protected $casts = [
-        'binary_timestamp' => 'timestamp',
+        'binary_timestamp' => 'date',
     ];
 
 
@@ -137,7 +137,7 @@ class user extends Model
             return false;
 
         // check time between now (database server) and time of generation
-        $delta_t = generic::getServerTime() - $this->binary_timestamp;
+        $delta_t = generic::getServerTime()->timestamp - $this->binary_timestamp->timestamp;
 
         // if binary_tokens are generated in the future (that mustn't happen) something is very wrong so return false
         if ($delta_t > self::TOKEN_EXPIRATION_TIME || $delta_t < 0)
@@ -156,7 +156,7 @@ class user extends Model
     {
         // generate new binary token
         $this->binary_token = random_bytes(self::BINARY_LENGTH);
-        $this->binary_timestamp = gmdate('c', generic::getServerTime());
+        $this->binary_timestamp = generic::getServerTime();
 
         // save changes in the database
         $this->save();

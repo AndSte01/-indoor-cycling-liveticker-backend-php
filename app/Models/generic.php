@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -10,10 +11,10 @@ class generic extends Model
     /**
      * Get's the current time of the server
      * 
-     * @return int|bool timestamp as integer, false on failure
+     * @return Carbon Carbon Object containing the current time of the SQL server
      */
-    static function getServerTime(): int|bool
+    static function getServerTime(): Carbon
     {
-        return strtotime(DB::select('SELECT NOW() AS now')[0]->now);
+        return Carbon::parse(DB::select('SELECT NOW() AS now')[0]->now);
     }
 }
