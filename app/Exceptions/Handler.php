@@ -6,8 +6,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Http\Request;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -70,6 +70,12 @@ class Handler extends ExceptionHandler
         ],
 
         // TODO maybe add InvalidFormatException (thrown by e.g. Carbon::parse())
+        AccessDeniedException::class => [
+            'code' => 403,
+            'type' => 'ACCESS_DENIED',
+            'message' => 'You don\'t have the rights to access the desired resource',
+            'adaptMessage' => false,
+        ]
     ];
 
     /**
