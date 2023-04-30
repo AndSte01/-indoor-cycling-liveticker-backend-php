@@ -35,7 +35,7 @@ class competition extends Model
      * @var array The attributes that should be cast.
      */
     protected $casts = [
-        'changed' => 'dateTime',
+        'changed' => 'datetime',
         'date' => 'date',
         'live' => 'boolean'
     ];
