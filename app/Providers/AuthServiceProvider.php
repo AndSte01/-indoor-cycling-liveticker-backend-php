@@ -6,7 +6,6 @@ use App\Models\user;
 use \Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use OutOfRangeException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -34,6 +33,8 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app['auth']->viaRequest('password', function ($request) {
             $user = self::authenticate($request, self::AUTHENTICATION_METHOD_BASIC);
+            // set the used guard as default (required for Auth::user() or $request->user() to work properly)
+            $this->app['config']['auth.defaults.guard'] = 'password';
 
             // if an error occurred an int will be returned
             if (is_int($user)) {
@@ -44,6 +45,8 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app['auth']->viaRequest('token', function ($request) {
             $user = self::authenticate($request, self::AUTHENTICATION_METHOD_BEARER);
+            // set the used guard as default (required for Auth::user() or $request->user() to work properly)
+            $this->app['config']['auth.defaults.guard'] = 'token';
 
             // if an error occurred an int will be returned
             if (is_int($user)) {
