@@ -18,7 +18,8 @@ return new class extends Migration
                 ->onDelete('set null')->onUpdate('cascade');
             $table->text('name')->nullable();
             $table->text('location')->nullable();
-            $table->date('date')->nullable()->default(NULL);
+            $table->date('date_start')->nullable()->default(NULL);
+            $table->date('date_end')->nullable()->default(NULL);
             $table->tinyInteger('feature_set')->default(0);
             $table->tinyInteger('areas')->default(0);
             $table->tinyInteger('live')->default(0);

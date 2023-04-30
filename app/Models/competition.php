@@ -36,7 +36,8 @@ class competition extends Model
      */
     protected $casts = [
         'changed' => 'datetime',
-        'date' => 'date',
+        'date_start' => 'date',
+        'date_end' => 'date',
         'live' => 'boolean'
     ];
 
