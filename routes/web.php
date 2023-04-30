@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use Illuminate\Http\JsonResponse;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -14,5 +16,10 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return new JsonResponse([
+        "url" => env('APP_URL'),
+        "api" => env('API_VERSION'),
+        "backend" => env('APP_NAME'),
+        "backend_version" => env('APP_VERSION')
+    ]);
 });
