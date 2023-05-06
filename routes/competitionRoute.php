@@ -21,7 +21,7 @@ $router->group(['prefix' => 'competition'], function () use ($router) {
 
     $router->get('', $controller . '@show');
 
-    $router->post('', $controller . '@upsert');
+    $router->post('', ['middleware' => 'auth:token', 'uses' => $controller . '@upsert']);
 
-    $router->delete('', $controller . '@destroy');
+    $router->delete('', ['middleware' => 'auth:token', 'uses' => $controller . '@destroy']);
 });
