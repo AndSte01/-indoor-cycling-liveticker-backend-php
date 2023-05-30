@@ -20,6 +20,9 @@ return new class extends Migration
             $table->text('location')->nullable();
             $table->date('date_start')->nullable()->default(NULL);
             $table->date('date_end')->nullable()->default(NULL);
+            // $table->smallInteger('country')->default(0);
+            // $table->smallInteger('region')->default(0);
+            // $table->smallInteger('scope')->default(0);
             $table->tinyInteger('feature_set')->default(0);
             $table->tinyInteger('areas')->default(0);
             $table->tinyInteger('live')->default(0);
