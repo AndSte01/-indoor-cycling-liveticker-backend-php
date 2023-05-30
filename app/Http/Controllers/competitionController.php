@@ -98,7 +98,7 @@ class competitionController extends Controller
                 }
 
                 // check wether the users match, else throw exception
-                if ($competition->checkAccess($request->user()->id)) {
+                if ($competition->checkAccess($request->user())) {
                     $exceptions[] = new AccessDeniedException("competition?id=" . strval($competition->id));
                     continue;
                 }
@@ -106,7 +106,7 @@ class competitionController extends Controller
                 // TODO add check for duplicates
 
                 $competition = new competition();
-                $competition->user_id = $request->user()->id;
+                $competition->user_id = $request->user()->getAuthIdentifier();
                 $new_competition = true;
             }
 
@@ -202,7 +202,7 @@ class competitionController extends Controller
         $competition = competition::findOrFail($id);
 
         // check wether the current user has access
-        if (!$competition->checkAccess($request->user()->id))
+        if (!$competition->checkAccess($request->user()))
             throw new AccessDeniedException("competition?id=" . strval($competition->id));
 
         // delete record in the database

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits_Interfaces\CheckAccessInterface;
 use DateTimeInterface;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class competition extends Model
+class competition extends Model implements CheckAccessInterface
 {
     // tell lumen the model has an assigned factory
     use HasFactory;
@@ -71,8 +73,8 @@ class competition extends Model
     /**
      * Check whether the given user has access to the desired resource or not
      */
-    public function checkAccess(int $user): bool
+    public function checkAccess(Authenticatable $user): bool
     {
-        return ($this->user_id == $user);
+        return ($this->user_id == $user->getAuthIdentifier());
     }
 }
