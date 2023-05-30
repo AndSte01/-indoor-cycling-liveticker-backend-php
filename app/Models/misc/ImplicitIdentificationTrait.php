@@ -8,7 +8,17 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\MissingAttributeException;
 
 /**
+ * Alternative solutions:
+ *  - query all models individual (requires dependency tree, very likely to work)
+ *  - use the with keyword (see https://stackoverflow.com/questions/25628754/laravel-nested-relationships)
+ *    requires dependency tree, not tested to be working
+ */
+
+/**
  * Implementation for identifying an model using implicit values
+ * 
+ * Problem: Relationships defined by lumen can't be used effectively, so non standard ones
+ *          will break that code
  */
 trait ImplicitIdentificationTrait
 {
