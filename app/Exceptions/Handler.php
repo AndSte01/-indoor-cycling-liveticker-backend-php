@@ -6,6 +6,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\App;
 use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -132,7 +133,8 @@ class Handler extends ExceptionHandler
             // place holder
             $content = [];
 
-            // format all the different exceptions (note type error since it isn't recognized that $exception is MultiException)
+            // format all the different exceptions (note type error since it isn't recognized that $exception is MultiException
+            // and I don't know how to tell php that it is
             foreach ($exception->getExceptions() as $e) {
                 $content[] = $this->formatException($e);
             }
