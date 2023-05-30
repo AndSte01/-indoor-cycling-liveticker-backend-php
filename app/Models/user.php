@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Helpers\ServerTimeHelper;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class user extends Model
+class user extends Model implements Authenticatable
 {
     // use all the little helpers
     use HasFactory;
@@ -55,6 +56,49 @@ class user extends Model
 
     /** @var string The hash algorithm used to hash password with salt */
     private const HASH_ALGORITHM = "sha3-512"; // please note the binary length of hash filed (must be 64 byte long, in migrations)
+
+
+    // --- methods for implementing the Authenticatable (some are only placeholders --- 
+
+    public function getAuthIdentifierName()
+    {
+        $this->primaryKey;
+    }
+
+    public function getAuthIdentifier()
+    {
+        $this->getKey();
+    }
+
+    /** 
+     * NO FUNCTIONALITY
+     * 
+     * @return null
+     */
+    public function getAuthPassword()
+    {
+        return  null;
+    }
+
+    public function getRememberToken()
+    {
+        return $this->getBearerToken();
+    }
+
+    /** NO FUNCTIONALITY */
+    public function setRememberToken($value)
+    {
+    }
+
+    /**
+     * NO FUNCTIONALITY
+     * 
+     * @return null
+     */
+    public function getRememberTokenName()
+    {
+        return null;
+    }
 
     /**
      * Searches for a user in the database by it's name
