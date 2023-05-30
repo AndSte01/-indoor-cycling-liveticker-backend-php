@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Traits_Interfaces;
 
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
