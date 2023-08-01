@@ -16,12 +16,16 @@ class competitionFactory extends Factory
     {
         $faker = Faker::create();
 
+        // timestamp used to make sure the competition ends before it starts
+        $date_timestamp = rand();
+
         return [
             'name' => $faker->text(10),
             'location' => $faker->text(8),
-            'date' => $faker->date(),
+            'date_start' => $faker->date($date_timestamp),
+            'date_end' => $faker->date($date_timestamp + rand(0, 1000000)),
             'feature_set' => 0,
-            'areas' => rand(0, 3),
+            'areas' => rand(1, 3),
             'live' => rand(0, 1)
         ];
     }
