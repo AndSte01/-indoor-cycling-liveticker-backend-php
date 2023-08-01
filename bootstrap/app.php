@@ -116,6 +116,7 @@ $app->router->group([
     require __DIR__ . '/../routes/web.php';
     require __DIR__ . '/../routes/competitionRoute.php';
     require __DIR__ . '/../routes/userRoute.php';
+    require __DIR__ . '/../routes/disciplineRoute.php';
 });
 
 return $app;
