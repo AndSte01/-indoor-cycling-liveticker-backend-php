@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('result', function (Blueprint $table) {
+        Schema::create('results', function (Blueprint $table) {
             $table->bigIncrements('id')->nullable(false)->unsigned();
             $table->timestamp('changed')->useCurrentOnUpdate()->useCurrent()->nullable(false);
-            $table->foreignId('discipline_id')->nullable()->constrained('discipline')
+            $table->foreignId('discipline_id')->nullable()->constrained('disciplines')
                 ->onDelete('cascade')->onUpdate('cascade');
             $table->text('name');
             $table->text('club');

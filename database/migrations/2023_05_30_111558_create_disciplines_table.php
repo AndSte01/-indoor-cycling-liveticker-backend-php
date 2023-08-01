@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discipline', function (Blueprint $table) {
+        Schema::create('disciplines', function (Blueprint $table) {
             $table->bigIncrements('id')->nullable(false)->unsigned();
             $table->timestamp('changed')->useCurrentOnUpdate()->useCurrent()->nullable(false);
             $table->foreignId('competition_id')->nullable()->constrained('competitions')
