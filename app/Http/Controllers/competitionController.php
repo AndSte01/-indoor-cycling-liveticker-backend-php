@@ -76,78 +76,78 @@ class competitionController extends Controller
         // make sure content is always an array
         ControllerHelper::makeToArray($content);
 
-        // empty arrays for storing the exceptions and competitions produced during the dry run
+        // empty arrays for storing the exceptions and resources produced during the dry run
         $exceptions = [];
-        $competitions = [];
+        $resources = [];
 
-        // check for errors in provided competitions
-        foreach ($content as $input_competition) {
+        // check for errors in provided resources
+        foreach ($content as $input_resource) {
             // cast the input (is an object) to an array
-            $input_competition = (array) $input_competition;
+            $input_resource = (array) $input_resource;
 
-            /** @var bool variable stores wether a new competition has been created or an existing one gets updated */
-            $new_competition = false;
+            /** @var bool variable stores wether a new resource has been created or an existing one gets updated */
+            $new_resource = false;
 
             // if an id has been provided search for the model in the database
-            if (!empty($input_competition["id"])) {
+            if (!empty($input_resource["id"])) {
                 try {
-                    $competition = competition::findOrFail($input_competition["id"]);
+                    $resource = competition::findOrFail($input_resource["id"]);
                 } catch (\Throwable $th) {
                     $exceptions[] = $th;
                     continue;
                 }
 
                 // check wether the users match, else throw exception
-                if ($competition->checkAccess($request->user())) {
-                    $exceptions[] = new AccessDeniedException("competition?id=" . strval($competition->id));
+                if ($resource->checkAccess($request->user())) {
+                    $exceptions[] = new AccessDeniedException("resource?id=" . strval($resource->id));
                     continue;
                 }
             } else {
                 // TODO add check for duplicates
 
-                $competition = new competition();
-                $competition->user_id = $request->user()->getAuthIdentifier();
-                $new_competition = true;
+                $resource = new competition();
+                $resource->user_id = $request->user()->getAuthIdentifier();
+                $new_resource = true;
             }
 
             // only mangle with dates if they get touched by the request
-            if (isset($input_competition["date_start"]) || isset($input_competition["date_end"])) {
+            if (isset($input_resource["date_start"]) || isset($input_resource["date_end"])) {
                 /**
                  * get the relevant date and store it in an variable
                  * $temp_date_start is set to one of the following variables in the given priority, if the higher prioritized one is null the one following is used (and so on)
                  * 'date provided by the request ("the new on")' > 'date already stored in the competition ("the old one")' > 'the other date (implicitly assuming a single day competition)'
                  * 
-                 * Note: - The case in which neither $input_competition["date_start"] nor $input_competition["date_end"] is set/provided, is already taken int account by the enclosing
+                 * Note: - The case in which neither $input_resource["date_start"] nor $input_resource["date_end"] is set/provided, is already taken int account by the enclosing
                  *         if statement (the one, that is one level up from this code)
                  *       - The provided date (if one is provided by the request) get's directly parsed to an Carbon object.
                  *       - The try-catch block is required because the request might provide invalid timestamps that Carbon can't parse (throwing an exception)
-                 *       - The variable $input_competition["date_..."] gets reused for the newly determined date
+                 *       - The variable $input_resource["date_..."] gets reused for the newly determined date
                  */
                 try {
-                    $input_competition["date_start"] = isset($input_competition["date_start"])
-                        ? Carbon::parse($input_competition["date_start"])
-                        : (!empty($competition->date_start)
-                            ? $competition->date_start
-                            : Carbon::parse($input_competition["date_end"]));
+                    $input_resource["date_start"] = isset($input_resource["date_start"])
+                        ? Carbon::parse($input_resource["date_start"])
+                        : (!empty($resource->date_start)
+                            ? $resource->date_start
+                            : Carbon::parse($input_resource["date_end"]));
 
-                    $input_competition["date_end"] = isset($input_competition["date_end"])
-                        ? Carbon::parse($input_competition["date_end"])
-                        : (!empty($competition->date_end)
-                            ? $competition->date_end
-                            : $input_competition["date_start"]); // since one of the both fields must be set we can assume that $temp_date_start contains a date provided by the request
+                    $input_resource["date_end"] = isset($input_resource["date_end"])
+                        ? Carbon::parse($input_resource["date_end"])
+                        : (!empty($resource->date_end)
+                            ? $resource->date_end
+                            : $input_resource["date_start"]); // since one of the both fields must be set we can assume that $temp_date_start contains a date provided by the request
                 } catch (\Throwable $th) {
                     $exceptions[] = $th;
                     continue;
                 }
 
                 // check that temp_date_end is before temp_date_start, if not set the ending date to the starting on (single day competition)
-                if ($input_competition["date_end"]->timestamp < $input_competition["date_start"]->timestamp) {
-                    $input_competition["date_end"] = $input_competition["date_start"];
+                if ($input_resource["date_end"]->timestamp < $input_resource["date_start"]->timestamp) {
+                    $input_resource["date_end"] = $input_resource["date_start"];
                 }
             }
 
             // validate remaining fields
-            $validator = Validator::make($input_competition, [
+            $validator = Validator::make($input_resource, [
                 'feature_set' => 'nullable|numeric',
                 'areas' => 'nullable|numeric|min:1',
                 'live' => 'nullable|boolean'
@@ -163,25 +163,25 @@ class competitionController extends Controller
             // if (empty($exceptions))
             //     continue;
 
-            // fill in the data (that has been validated to be correct) into the competition
-            $competition->fill($input_competition);
+            // fill in the data (that has been validated to be correct) into the resource
+            $resource->fill($input_resource);
 
-            // add the competition to the list
-            $competitions[] = $competition;
+            // add the resource to the list
+            $resources[] = $resource;
         }
 
         // check wether exceptions did occur if so throw an exception
         if (!empty($exceptions))
             throw new MultiException($exceptions);
 
-        // no exceptions did occur we now write the competitions to the database
-        foreach ($competitions as $competition) {
-            $competition->save();
-            $competition->refresh(); // we want to provide an exact copy whats in the db so we re-hydrate the model with exactly the databases content
+        // no exceptions did occur we now write the resources to the database
+        foreach ($resources as $resource) {
+            $resource->save();
+            $resource->refresh(); // we want to provide an exact copy whats in the db so we re-hydrate the model with exactly the databases content
         }
 
-        // return the save competitions
-        return new JsonResponse($competitions);
+        // return the save resources
+        return new JsonResponse($resources);
     }
 
     /**
