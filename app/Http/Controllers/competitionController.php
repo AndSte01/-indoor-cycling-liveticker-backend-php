@@ -103,8 +103,6 @@ class competitionController extends Controller
                     continue;
                 }
             } else {
-                // TODO add check for duplicates
-
                 $resource = new competition();
                 $resource->user_id = $request->user()->getAuthIdentifier();
                 $new_resource = true;
@@ -144,6 +142,25 @@ class competitionController extends Controller
                 if ($input_resource["date_end"]->timestamp < $input_resource["date_start"]->timestamp) {
                     $input_resource["date_end"] = $input_resource["date_start"];
                 }
+            } elseif ($new_resource) {
+                // in case a new record is created dates MUST be provided else throw error
+                $exceptions[] = new InvalidArgumentException('A date must be present in a new competition');
+                continue;
+            }
+
+            // check if required fields for a new resource are present, else throw error
+            if ($new_resource) {
+                // name and location must be present
+                $validator = Validator::make($input_resource, [
+                    'name' => 'string',
+                    'location' => 'string'
+                ]);
+
+                // do the validation in case it failed write exception and continue
+                if ($validator->fails()) {
+                    $exceptions[] = new InvalidArgumentException($validator->errors()->toJson());
+                    continue;
+                }
             }
 
             // validate remaining fields
@@ -157,6 +174,25 @@ class competitionController extends Controller
             if ($validator->fails()) {
                 $exceptions[] = new InvalidArgumentException($validator->errors()->toJson());
                 continue;
+            }
+
+            // check for duplicates (but only if we want to create a new resource)
+            if ($new_resource) {
+                // in case a duplicate does exist
+                if (competition::query()
+                    ->where([
+                        // https://stackoverflow.com/questions/2545947/check-overlap-of-date-ranges-in-mysql
+                        ['date_end', '>=', $input_resource['date_start']],
+                        ['date_start', '<=', $input_resource['date_end']]
+                    ])
+                    ->where('name', '=', $input_resource['name'])
+                    ->where('location', '=', $input_resource['location'])
+                    ->exists()
+                ) {
+                    // duplicate exists so throw error
+                    $exceptions[] = 0;
+                    continue;
+                }
             }
 
             // should be unnecessary in case of correct implementation
