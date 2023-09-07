@@ -31,7 +31,7 @@ interface ImplicitIdentificationInterface
      * 
      * @return Model the first model found is returned
      */
-    public static function getImplicitOrFail(): Model;
+    public static function getImplicitOrFail(object &$data): Model;
 
     /**
      * Checks whether the data meets the requirements (contains all the fields required)
