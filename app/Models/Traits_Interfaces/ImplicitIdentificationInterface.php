@@ -4,6 +4,7 @@ namespace App\Models\Traits_Interfaces;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Allows the model to be identified by a set of attributes not containing its primary key
@@ -11,26 +12,35 @@ use Illuminate\Database\Eloquent\Collection;
 interface ImplicitIdentificationInterface
 {
     /**
-     * gets the identifiers that uniquely define this model (except the primary key)
+     * Searches implicitly for a model
      * 
-     * @return array The implicit identifiers
+     * @param object &$data the fields that should be used for the implicit search
+     * 
+     * @return Model the first model found is returned
      */
-    public function getImplicitIdentifiers(): array;
+    public static function getImplicit(object &$data): Model;
 
     /**
-     * Adds the required 'join' and 'where' statements to the query
+     * Searches implicitly for a model, in case none is found an exception is thrown
      * 
-     * @param Builder &$query The query used for the implicit detection of this element (might be joined in a dependency tree)
-     * @param object $IdentifierAndValue The identifiers and there values
-     * @param string $childJoinColumn The column the relation between child and parent takes place (in the child's table)
+     * Layout of data is probably described in 'getImplicit()'
+     * 
+     * @param object &$data the fields that should be used for the implicit search
+     * 
+     * @throws ModelNotFoundException in case no model was found
+     * 
+     * @return Model the first model found is returned
      */
-    public function generateImplicitQuery(Builder &$query, object $IdentifierAndValue, string $childJoinColumn = null): void;
+    public static function getImplicitOrFail(): Model;
 
     /**
-     * Get a model form the database using a minimal set of values (not including the primary key) that identifies it uniquely.
+     * Checks whether the data meets the requirements (contains all the fields required)
      * 
-     * @param object $IdentifierAndValue the pairs of identifiers and their values uniquely describing the object
-     * @param bool $multiple Decides wether multiple elements or just the first one should be returned (might be required due to duplicates in the database)
+     * @param object &$data the data to check
+     * 
+     * @throws InvalidArgumentException in case the validation fails
+     * 
+     * @return bool true in case the data is correct else false
      */
-    public static function getImplicit(object $IdentifierAndValue, bool $multiple = false): Collection|self|static|null;
+    public static function validateImplicitQueryData(object &$data): bool;
 }
